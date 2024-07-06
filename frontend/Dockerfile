@@ -1,5 +1,5 @@
-# Use the Node.js 14 image
-FROM node:14-alpine
+# Use the Node.js 16 image
+FROM node:16-alpine
 
 # Set the working directory
 WORKDIR /app/frontend
