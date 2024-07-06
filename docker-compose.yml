@@ -1,3 +1,57 @@
+# version: '3.8'
+
+# services:
+#   frontend:
+#     build:
+#       context: ./frontend
+#     container_name: frontend
+#     restart: unless-stopped
+#     ports:
+#       - "3000:80"
+  
+#   backend:
+#     build:
+#       context: ./backend
+#     container_name: backend
+#     restart: unless-stopped
+#     ports:
+#       - "8000:8000"
+
+#   db:
+#     image: postgres:13
+#     container_name: postgres
+#     restart: unless-stopped
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: babatunde_25
+#       POSTGRES_DB: hng11_devops_stage_2
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     ports:
+#       - "5432:5432"
+
+#   adminer:
+#     image: adminer
+#     container_name: adminer
+#     restart: unless-stopped
+#     ports:
+#       - "8080:8080"
+
+#   proxy:
+#     image: 'jc21/nginx-proxy-manager:latest'
+#     container_name: proxy_manager
+#     restart: unless-stopped
+#     ports:
+#       - "80:80"
+#       - "81:81"
+#       - "443:443"
+#     volumes:
+#       - ./data:/data
+#       - ./letsencrypt:/etc/letsencrypt
+
+# volumes:
+#   postgres_data:
+
 version: '3.8'
 
 services:
@@ -16,15 +70,17 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
 
   db:
     image: postgres:13
     container_name: postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: babatunde_25
-      POSTGRES_DB: hng11_devops_stage_2
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
