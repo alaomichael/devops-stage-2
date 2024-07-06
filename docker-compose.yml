@@ -1,0 +1,38 @@
+version: '3'
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app_network
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - app_network
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - app_network
+  proxy_manager:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "8090:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - app_network
+networks:
+  app_network:
+
