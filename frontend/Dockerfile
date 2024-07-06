@@ -1,29 +1,26 @@
-# Use an official node image as the base image
-FROM node:14
+# Use the Node.js 14 image
+FROM node:14-alpine
 
 # Set the working directory
-WORKDIR /app
+WORKDIR /app/frontend
 
-# Copy package.json and package-lock.json
+# Copy package.json and package-lock.json (if exists)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Configure npm to use a different registry
+RUN npm config set registry https://registry.npmjs.org/
 
-# Copy the rest of the application code
+# Install npm packages
+RUN npm install --silent
+
+# Copy the rest of the application
 COPY . .
 
-# Build the React application
+# Build the application
 RUN npm run build
 
-# Use an official Nginx image to serve the React application
-FROM nginx:alpine
+# Expose the port
+EXPOSE 3000
 
-# Copy the build output to the Nginx html directory
-COPY --from=0 /app/build /usr/share/nginx/html
-
-# Expose port 80
-EXPOSE 80
-
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start the application
+CMD ["npm", "start"]

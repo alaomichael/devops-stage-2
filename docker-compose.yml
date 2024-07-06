@@ -1,38 +1,53 @@
-version: '3'
+version: '3.8'
+
 services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+    container_name: frontend
+    restart: unless-stopped
     ports:
-      - "80:80"
-    depends_on:
-      - backend
-    networks:
-      - app_network
+      - "3000:80"
+  
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+    container_name: backend
+    restart: unless-stopped
     ports:
       - "8000:8000"
-    networks:
-      - app_network
+
+  db:
+    image: postgres:13
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: babatunde_25
+      POSTGRES_DB: hng11_devops_stage_2
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
   adminer:
     image: adminer
+    container_name: adminer
+    restart: unless-stopped
     ports:
       - "8080:8080"
-    networks:
-      - app_network
-  proxy_manager:
-    image: jwilder/nginx-proxy
-    container_name: nginx-proxy
-    ports:
-      - "8090:80"
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    networks:
-      - app_network
-networks:
-  app_network:
 
+  proxy:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: proxy_manager
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+
+volumes:
+  postgres_data:
