@@ -1,87 +1,229 @@
-version: '3.8'
+# version: '3.8'
+
+# services:
+#   frontend:
+#     build: ./frontend
+#     container_name: frontend
+#     restart: unless-stopped
+#     ports:
+#       - "5173:5173"
+#     networks:
+#       - web
+
+#   backend:
+#     build: ./backend
+#     container_name: backend
+#     depends_on:
+#       db:
+#         condition: service_healthy
+#     restart: unless-stopped
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+#     # volumes:
+#       # - ./backend/prestart.sh:/prestart.sh  # Ensure correct path to prestart.sh
+#     # command: /bin/bash /prestart.sh #&& uvicorn app.main:app --host 0.0.0.0 --port 8000
+#     networks:
+#       - web
+
+#   db:
+#     image: postgres:13
+#     container_name: postgres
+#     restart: unless-stopped
+#     environment:
+#       POSTGRES_USER: ${POSTGRES_USER}
+#       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#       POSTGRES_DB: ${POSTGRES_DB}
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     ports:
+#       - "5432:5432"
+#     networks:
+#       - web
+#     healthcheck:
+#       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+
+#   adminer:
+#     image: adminer
+#     container_name: adminer
+#     restart: unless-stopped
+#     ports:
+#       - "8080:8080"
+#     networks:
+#       - web
+
+#   proxy:
+#     image: 'jc21/nginx-proxy-manager:latest'
+#     container_name: nginx
+#     restart: unless-stopped
+#     ports:
+#       - "80:80"
+#       - "8090:81"
+#       - "443:443"
+#     environment:
+#       DB_SQLITE_FILE: "/data/database.sqlite"
+#     volumes:
+#       - ./data:/data
+#       - ./letsencrypt:/etc/letsencrypt
+#     depends_on:
+#       - frontend
+#       - backend
+#       - adminer
+#       - db
+#     networks:
+#       - web
+
+# volumes:
+#   postgres_data:
+#   data:
+#   letsencrypt:
+
+# networks:
+#   web:
+#     external: false
+
+
+
+
+
+# services:
+  
+#   db:
+#     image: postgres:13
+#     container_name: database
+#     env_file:
+#       - backend/.env   
+#     ports:
+#       - "5432:5432"   
+#     volumes:
+#       - posty:/var/lib/postgresql/data  
+#     networks:
+#       - networking
+
+  
+#   adminer:
+#     image: adminer
+#     container_name: adminer
+#     restart: always
+#     ports:
+#       - "8080:8080"   
+#     networks:
+#       - networking
+
+  
+#   backend:
+#     build: ./backend
+#     container_name: backend
+#     command: bash -c "poetry run bash ./prestart.sh && poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+#     depends_on:
+#       - db   
+#     env_file:
+#       - backend/.env   
+#     networks:
+#       - networking
+
+  
+#   frontend:
+#     build: ./frontend
+#     container_name: frontend
+#     env_file:
+#       - frontend/.env   
+#     networks:
+#       - networking
+
+  
+#   nginx:
+#     image: jc21/nginx-proxy-manager:latest
+#     container_name: nginx
+#     ports:
+#       - "80:80"     
+#       - "443:443"   
+#       - "8090:81"     
+#     volumes:
+#       - ./data:/data
+#       - ./nginx/nginx.conf:/data/nginx/custom/http_top.conf  
+#       - ./letsencrypt:/etc/letsencrypt  
+#     depends_on:
+#       - frontend   
+#       - backend    
+#       - adminer    
+#     networks:
+#       - networking
+
+
+# volumes:
+#   posty:
+
+
+# networks:
+#   networking:
 
 services:
-  frontend:
-    build: ./frontend
-    container_name: frontend
-    restart: unless-stopped
-    ports:
-      - "5173:5173"
-    networks:
-      - web
-
-  backend:
-    build: ./backend
-    container_name: backend
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
-    ports:
-      - "8000:8000"
-    environment:
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-    # volumes:
-      # - ./backend/prestart.sh:/prestart.sh  # Ensure correct path to prestart.sh
-    # command: /bin/bash /prestart.sh #&& uvicorn app.main:app --host 0.0.0.0 --port 8000
-    networks:
-      - web
-
+  
   db:
     image: postgres:13
-    container_name: postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    container_name: database
+    env_file:
+      - backend/.env   
     ports:
-      - "5432:5432"
+      - "5432:5432"   
+    volumes:
+      - posty:/var/lib/postgresql/data  
     networks:
-      - web
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER}" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - networking
 
   adminer:
     image: adminer
     container_name: adminer
-    restart: unless-stopped
+    restart: always
     ports:
-      - "8080:8080"
+      - "8080:8080"   
     networks:
-      - web
+      - networking
 
-  proxy:
-    image: 'jc21/nginx-proxy-manager:latest'
+  backend:
+    build: ./backend
+    container_name: backend
+    # command: bash -c "sed -i 's/\r//' prestart.sh && poetry run bash prestart.sh && poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+    depends_on:
+      - db   
+    env_file:
+      - backend/.env   
+    networks:
+      - networking
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    env_file:
+      - frontend/.env   
+    networks:
+      - networking
+
+  nginx:
+    image: jc21/nginx-proxy-manager:latest
     container_name: nginx
-    restart: unless-stopped
     ports:
-      - "80:80"
-      - "81:81"
-      - "443:443"
-    environment:
-      DB_SQLITE_FILE: "/data/database.sqlite"
+      - "80:80"     
+      - "443:443"   
+      - "8090:81"     
     volumes:
       - ./data:/data
-      - ./letsencrypt:/etc/letsencrypt
+      - ./nginx/nginx.conf:/data/nginx/custom/http_top.conf  
+      - ./letsencrypt:/etc/letsencrypt  
     depends_on:
-      - frontend
-      - backend
-      - adminer
-      - db
+      - frontend   
+      - backend    
+      - adminer    
     networks:
-      - web
+      - networking
 
 volumes:
-  postgres_data:
-  data:
-  letsencrypt:
+  posty:
 
 networks:
-  web:
-    external: false
+  networking:
